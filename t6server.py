@@ -18,6 +18,7 @@ class T6Server:
     name: str
     port: int
     rcon: str
+    type: str
     config_file: str
 
     def __repr__(self) -> str:
@@ -32,6 +33,7 @@ class T6Server:
             'name': self.name,
             'port': self.port,
             'rcon': self.rcon,
+            'type': self.type,
             'config_file': self.config_file
         }
 
@@ -45,6 +47,7 @@ class T6Server:
             data.get('name', ''),
             data.get('port', 0),
             data.get('rcon', ''),
+            data.get('type', ''),
             data.get('config_file', '')
         )
 

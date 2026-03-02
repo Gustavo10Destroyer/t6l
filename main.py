@@ -30,6 +30,7 @@ def main() -> None:
     create_parser.add_argument('--home', help='O caminho até a pasta Plutonium do servidor', required=True)
     create_parser.add_argument('--port', type=int, help='A porta que o servidor vai escutar', required=True)
     create_parser.add_argument('--rcon', help='A senha para o Remote Console', required=True)
+    create_parser.add_argument('--type', help='O modo de jogo', choices=['zm', 'mp'], required=True)
     create_parser.add_argument('--config-file', help='O arquivo de configuração que o servidor deve executar ao iniciar', required=True)
 
     list_parser = subparsers.add_parser('list', description='Lista todos os perfis de servidores')
@@ -44,6 +45,7 @@ def main() -> None:
     edit_parser.add_argument('--name', help='Atualiza o nome do servidor')
     edit_parser.add_argument('--port', type=int, help='Atualiza a porta do servidor')
     edit_parser.add_argument('--rcon', help='Atualiza a senha para o Remote Console(RCON)')
+    edit_parser.add_argument('--type', help='Atualiza o modo de jogo do servidor', choices=['zm', 'mp'])
     edit_parser.add_argument('--config-file', help='Atualiza o arquivo de configuração do servidor')
 
     delete_parser = subparsers.add_parser('delete', description='Apaga um perfil existente')
@@ -73,6 +75,7 @@ def main() -> None:
                 args.name,
                 args.port,
                 args.rcon,
+                args.type,
                 args.config_file
             )
         )
@@ -86,6 +89,7 @@ def main() -> None:
 
         for server in servers:
             print(f'--- Servidor {server.name} ---')
+            print(f'Modo: {server.type}')
             print(f'HOME: "{server.home}"')
             if args.show_all:
                 print(f'Mod: {server.mod}')
@@ -103,6 +107,9 @@ def main() -> None:
 
         if args.name is not None:
             server.name = args.name
+
+        if args.type is not None:
+            server.type = args.type
 
         if args.port is not None:
             server.port = args.port
