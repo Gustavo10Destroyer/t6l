@@ -61,10 +61,47 @@ def main() -> None:
     stop_parser.add_argument('server', help='O nome do servidor')
     stop_parser.add_argument('--keep-bootstrapper', action='store_true', help='Para o servidor mas deixa o bootstrapper aberto (a API do servidor continua funcionando)')
 
+    status_parser = subparsers.add_parser('status', description='Veja o estado de um servidor')
+    status_parser.add_argument('server', help='O nome do servidor em questão')
+
     setup_parser = subparsers.add_parser('setup', description='Configura a ferramenta no ambiente')
     setup_parser.add_argument('--remove', action='store_true', help='Remove a ferramenta do ambiente')
 
     args = parser.parse_args()
+    if args.command == 'status':
+        servers = discover_resolved('_d3str0yer._tcp.local.')
+        if len(servers) == 0:
+            print('Nenhum servidor foi encontrado.')
+            return
+
+        for server in servers:
+            properties: Dict[str, Any] = server.get('properties', {})
+            type_ = properties.get('type')
+            if type_ is None or type_ != 't6server':
+                continue
+
+            addresses = server.get('addresses', [])
+            if len(addresses) < 1:
+                continue
+
+            name: str = properties.get('name', '')
+            host: str = addresses[0]
+            port: int = server.get('port', 0)
+            token: str = properties.get('authorization', '')
+
+            api = API(host, port, token)
+
+            server_status = '< unknown >'
+            api_status_response = api.get_status()
+            if api_status_response is not None:
+                server_status = api_status_response.status
+
+            print(f'Servidor: {name}')
+            print(f'Endereço: http://{host}:{port}')
+            print(f'Autorização: Bearer {token}')
+            print(f'Estado do servidor: {server_status}')
+        return
+
     if args.command == 'create':
         register_server(
             T6Server(

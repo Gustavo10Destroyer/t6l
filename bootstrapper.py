@@ -5,6 +5,7 @@ sys.dont_write_bytecode = True
 import os
 import json
 import socket
+import logging
 import subprocess
 from uuid import uuid4
 from threading import Thread
@@ -17,6 +18,8 @@ from typing import Any, Dict, Tuple
 from t6server import T6Server, get_server
 
 rcon_poll_rate = 30 # seconds
+
+logger: logging.Logger | None = None
 
 class ServerNode:
     def __init__(
@@ -215,14 +218,14 @@ def announce_service(name: str, port: int, token: str):
     zeroconf.register_service(info)
     return zeroconf, info
 
-def watch_server_status(node: ServerNode):
+def watch_server_status(node: ServerNode, logger: logging.Logger):
     global rcon_poll_rate
 
     last_check = time()
     while True:
         sleep(0.05)
         if node.status() == 'stopped' or node.status() == 'starting':
-            sleep(2)
+            sleep(1)
             continue
 
         if (time() - last_check) < rcon_poll_rate:
@@ -230,7 +233,7 @@ def watch_server_status(node: ServerNode):
 
         last_check = time()
         if not is_alive('127.0.0.1', node.server.port):
-            print(f'[WARN] O servidor {node.server.name} não está respondendo, reiniciando...')
+            logger.warning(f'O servidor {node.server.name} não está respondendo, reiniciando...')
             node.stop()
             sleep(2)
             node.start()
@@ -250,11 +253,13 @@ def main():
         print(f'Nenhum perfil chamado {server_name} foi encontrado.')
         return
 
+    logger = logging.getLogger(f'bootstrapper.{server.name}')
+
     node = ServerNode(server, hidden)
     node.start()
     Thread(
         target=watch_server_status,
-        args=[node]
+        args=[node, logger]
     ).start()
 
     httpd, token = create_http_server(node)
