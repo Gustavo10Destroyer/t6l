@@ -12,7 +12,7 @@ from threading import Thread
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from zeroconf import Zeroconf, ServiceInfo
 
-from rcon import is_alive, send_rcon
+from rcon import is_alive
 from time import time, sleep
 from typing import Any, Dict, Tuple
 from t6server import T6Server, get_server
@@ -78,18 +78,16 @@ class ServerNode:
         )
 
     def stop(self):
-        if self.process is not None and self.process.poll() is None:
-            response = send_rcon('127.0.0.1', self.server.port, self.server.rcon, 'quit', no_response=True)
-            if response is not None:
-                print(f'[WARN] Verifique se a senha RCON do servidor {self.server.name} está correta.')
+        if self.process is None or self.process.poll() is not None:
+            return
 
-            self.process.terminate()
+        self.process.terminate()
 
     def status(self):
         if self.process is None or self.process.poll() is not None:
             return 'stopped'
 
-        return 'running' if is_alive('127.0.0.1', self.server.port, 1) else 'starting'
+        return 'running'
 
 def create_http_server(node: ServerNode) -> Tuple[HTTPServer, str]:
     token = str(uuid4())
@@ -224,7 +222,7 @@ def watch_server_status(node: ServerNode, logger: logging.Logger):
     last_check = time()
     while True:
         sleep(0.05)
-        if node.status() == 'stopped' or node.status() == 'starting':
+        if node.status() == 'stopped':
             sleep(1)
             continue
 
