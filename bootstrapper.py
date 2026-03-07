@@ -219,15 +219,12 @@ def announce_service(name: str, port: int, token: str):
 def watch_server_status(node: ServerNode, logger: logging.Logger):
     global rcon_poll_rate
 
-    last_check = time()
+    last_check = time() + 60
     while True:
-        sleep(0.05)
-        if node.status() == 'stopped':
-            sleep(1)
-            continue
+        sleep(1)
 
-        if (time() - last_check) < rcon_poll_rate:
-            continue
+        if node.status() == 'stopped': continue
+        if (time() - last_check) < rcon_poll_rate: continue
 
         last_check = time()
         if not is_alive('127.0.0.1', node.server.port):
@@ -257,7 +254,8 @@ def main():
     node.start()
     Thread(
         target=watch_server_status,
-        args=[node, logger]
+        args=[node, logger],
+        daemon=True
     ).start()
 
     httpd, token = create_http_server(node)
