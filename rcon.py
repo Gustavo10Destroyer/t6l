@@ -28,7 +28,7 @@ def is_alive(host: str, port: int, timeout: float = 6) -> bool:
 
     try:
         _data, _ = socket.recvfrom(1024)
-    except (TimeoutError, ConnectionResetError):
+    except:
         return False
 
     return True
