@@ -54,6 +54,7 @@ class ServerNode:
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
+                shell=True,
                 startupinfo=startupinfo,
                 creationflags=subprocess.CREATE_NO_WINDOW
             )
@@ -71,7 +72,8 @@ class ServerNode:
                 '+exec', self.server.config_file,
                 '-dedicated', '+map_rotate'
             ],
-            cwd=self.server.home
+            cwd=self.server.home,
+            shell=True
         )
 
     def stop(self):
