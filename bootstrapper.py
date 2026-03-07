@@ -46,7 +46,7 @@ class ServerNode:
                     '+set', 'key', self.server.key,
                     '+set', 'fs_game', self.server.mod,
                     '+set', 'net_port', str(self.server.port),
-                    '+set', 'sv_hostname', f'"{self.server.name}"',
+                    '+set', 'sv_hostname', self.server.name,
                     '+exec', self.server.config_file,
                     '-dedicated', '+map_rotate'
                 ],
@@ -54,7 +54,6 @@ class ServerNode:
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
-                close_fds=True,
                 startupinfo=startupinfo,
                 creationflags=subprocess.CREATE_NO_WINDOW
             )
@@ -68,13 +67,11 @@ class ServerNode:
                 '+set', 'key', self.server.key,
                 '+set', 'fs_game', self.server.mod,
                 '+set', 'net_port', str(self.server.port),
-                '+set', 'sv_hostname', f'"{self.server.name}"',
+                '+set', 'sv_hostname', self.server.name,
                 '+exec', self.server.config_file,
                 '-dedicated', '+map_rotate'
             ],
-            cwd=self.server.home,
-            close_fds=True,
-            creationflags=subprocess.CREATE_NEW_CONSOLE
+            cwd=self.server.home
         )
 
     def stop(self):
