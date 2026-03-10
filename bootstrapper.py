@@ -5,6 +5,7 @@ sys.dont_write_bytecode = True
 import os
 import json
 import socket
+import psutil
 import logging
 import subprocess
 from uuid import uuid4
@@ -20,6 +21,14 @@ from t6server import T6Server, get_server
 rcon_poll_rate = 30 # seconds
 
 logger: logging.Logger | None = None
+
+def kill_process_tree(parent: psutil.Process):
+    childs = parent.children(recursive=True)
+
+    for child in childs:
+        child.kill()
+
+    parent.kill()
 
 class ServerNode:
     def __init__(
@@ -80,7 +89,7 @@ class ServerNode:
         if self.process is None or self.process.poll() is not None:
             return
 
-        self.process.terminate()
+        kill_process_tree(psutil.Process(self.process.pid))
 
     def status(self):
         if self.process is None or self.process.poll() is not None:
