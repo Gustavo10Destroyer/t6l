@@ -81,9 +81,8 @@ class ServerNode:
                 '+exec', self.server.config_file,
                 '-dedicated', '+map_rotate'
             ],
-            creationflags=subprocess.CREATE_NEW_CONSOLE,
             cwd=self.server.home,
-            shell=True
+            creationflags=subprocess.CREATE_NEW_CONSOLE,
         )
 
     def stop(self):
