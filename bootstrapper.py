@@ -71,6 +71,7 @@ class ServerNode:
 
         self.process = subprocess.Popen(
             [
+                "cmd.exe", "/k",
                 os.path.join(self.server.home, 'bin', 'plutonium-bootstrapper-win32.exe'),
                 't6zm' if self.server.type == 'zm' else 't6mp', # t6zm or t6mp
                 f'{self.server.game}',
